@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Canvas Textbox Drag and Drop Example</title>
+    <style>
+        #canvas {
+            width: 1200px;
+            height: 600px;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        .textbox {
+            width: 150px;
+            height: 80px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            position: absolute;
+            cursor: move;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="canvas">
+        <!-- Textboxes will be added here dynamically -->
+    </div>
+    <div>
+        <h3>Textbox Data</h3>
+        <p>Position X: <span id="xPos"></span></p>
+        <p>Position Y: <span id="yPos"></span></p>
+        <p>Input Data: <input type="text" id="inputData"></p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const textboxDataDiv = document.getElementById('textboxData');
+        const inputElement = document.getElementById('inputData');
+        let isDragging = false;
+        let dragOffsetX, dragOffsetY;
+
+        // Function to create and add a new draggable textbox to the canvas
+        function createDraggableTextbox (x, y) {
+            const newTextbox = document.createElement('div');
+            newTextbox.className = 'textbox';
+            newTextbox.style.left = x + 'px';
+            newTextbox.style.top = y + 'px';
+            newTextbox.draggable = true;
+
+            // Event listeners for dragging
+            newTextbox.addEventListener('dragstart', handleDragStart);
+            newTextbox.addEventListener('drag', handleDrag);
+            newTextbox.addEventListener('dragend', handleDragEnd);
+
+            canvas.appendChild(newTextbox);
+        }
+
+        // Event handler for drag start
+        function handleDragStart (e) {
+            isDragging = true;
+            const rect = e.target.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+        }
+
+        // Event handler for dragging
+        function handleDrag (e) {
+            if (!isDragging) return;
+            const x = e.clientX - canvas.getBoundingClientRect().left - dragOffsetX;
+            const y = e.clientY - canvas.getBoundingClientRect().top - dragOffsetY;
+
+            e.target.style.left = x + 'px';
+            e.target.style.top = y + 'px';
+
+            updateTextboxData(x, y);
+        }
+
+        // Event handler for drag end
+        function handleDragEnd (e) {
+            isDragging = false;
+        }
+
+        // Function to update the textbox data display
+        function updateTextboxData (x, y) {
+            document.getElementById('xPos').textContent = x;
+            document.getElementById('yPos').textContent = y;
+
+            const activeTextbox = document.querySelector('.textbox');
+            if (activeTextbox) {
+                activeTextbox.dataset.inputData = inputElement.value;
+            }
+        }
+
+        // Event listener for canvas click to add new textboxes
+        canvas.addEventListener('click', (e) => {
+            const x = e.clientX - canvas.getBoundingClientRect().left;
+            const y = e.clientY - canvas.getBoundingClientRect().top;
+            createDraggableTextbox(x, y);
+        });
+    </script>
+</body>
+
+</html>
